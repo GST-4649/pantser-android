@@ -3,7 +3,7 @@
    Default theme only (Linear Modern + Ember Night). Other styles and
    palettes are reserved slots. No em dashes in this file. */
 
-const APP_VERSION = '1.12.0';
+const APP_VERSION = '1.13.0';
 
 /* ---------------- i18n ---------------- */
 function langCode() {
@@ -1075,6 +1075,27 @@ function renderTray() {
     const n = document.createElement('span');
     n.className = 'n'; n.textContent = t('print_count_text', r.prints || 0);
     row.appendChild(name); row.appendChild(n);
+    const del = document.createElement('button');
+    del.type = 'button'; del.className = 'mini-btn'; del.textContent = t('items_delete');
+    del.addEventListener('click', function (e) {
+      e.stopPropagation();
+      showDialog({
+        title: t('dialog_delete_label_title'), msg: t('dialog_delete_label_msg'),
+        buttons: [
+          { label: t('btn_cancel') },
+          { label: t('items_delete'), primary: true, onClick: async function () {
+            /* A label is its size + kind: drop every record with that
+               identity, so it cannot resurface from a duplicate row. */
+            const recs = Store.get('records', []);
+            const match = function (x) { return x.size === r.size && (x.kind || 'text') === (r.kind || 'text'); };
+            for (const d of recs.filter(match)) { try { await IDB.del(d.id); } catch (err) {} }
+            Store.set('records', recs.filter(function (x) { return !match(x); }));
+            renderAll();
+          } }
+        ]
+      });
+    });
+    row.appendChild(del);
     row.addEventListener('click', function () { createLabel(r.size, r.kind || 'text'); });
     list.appendChild(row);
   });

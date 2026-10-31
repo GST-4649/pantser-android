@@ -3,8 +3,10 @@
    Version history lives in web/CHANGELOG.md.
    v1.11.0 cleans up the web code, with no behavior change.
    v1.12.0 shares the PDF via the native share sheet on iOS
-   standalone web apps, where no print UI exists. */
-const CACHE = 'pantser-v22';
+   standalone web apps, where no print UI exists.
+   v1.13.0 adds a per-label Delete button to the quick-print tray,
+   guarded by a confirm dialog. */
+const CACHE = 'pantser-v23';
 const ASSETS = [
   './',
   './index.html',

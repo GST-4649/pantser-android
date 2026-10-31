@@ -163,6 +163,9 @@ file name.
   size), keep the first 8.
 - Each row shows the size (pipes rendered as ` | `) and `<n> prints`.
 - Tapping a row calls createLabel with the raw stored size.
+- Each row has a Delete button (web v1.13.0): it asks "Delete this
+  label?" first, and confirming removes every record with that
+  size + kind identity plus its saved PDF bytes.
 - Empty state text: "Your recently printed labels will appear here."
 
 ### 2.5 Print delivery (web v1.9.0)
