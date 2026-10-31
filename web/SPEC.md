@@ -178,11 +178,17 @@ file name.
   window, which opens the system print dialog at once. Print CSS
   hides everything except the sheet; one Letter page, zero page
   margins. If the HTML path throws, it falls back to the PDF flow.
-- iOS installed web apps (standalone webview, where window.print()
-  is a dead call and the hidden-frame PDF print is a silent no-op)
-  hand the PDF to the native share sheet instead (web v1.12.0), so
-  the user picks Print from it; if file sharing is unavailable,
-  they fall back to the PDF flow.
+- iOS, standalone or browser (web v1.13.0): hand the PDF to the
+  native share sheet instead, so the user picks Print from it; if
+  file sharing is unavailable, they fall back to the PDF flow.
+  Standalone has no print UI at all (window.print() is a dead call
+  and the hidden-frame PDF print is a silent no-op, since v1.12.0).
+  iOS Safari browser additionally ignores @page margin/size and
+  forces ~10mm margins, which makes the full-bleed HTML sheet print
+  offset across two pages with Safari's own footer (title + date)
+  in the forced margins — no page CSS can remove that footer, so
+  the HTML path is skipped on iOS entirely and Share -> Print
+  prints the clean PDF.
 - Item-label sheets (web v1.10.0) use the same HTML path on touch
   devices: the sheet is built as HTML mirroring the PDF geometry
   (2x2 cells, shrunken logo, Tinos rows, hanging indent, labels

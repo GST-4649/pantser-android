@@ -312,21 +312,24 @@ async function printRecord(rec, bytes) {
    there). On touch devices that path fails. Mobile Chrome will not
    run a PDF viewer inside a hidden frame, so size-label sheets
    print as an HTML rendering instead, and window.print() on the
-   main window opens the system print dialog at once. iOS installed
-   web apps are the one exception: they run in a webview where
-   window.print() is a dead call, so they keep the PDF new-tab flow.
-   Item-label sheets have their own HTML path in printItemRecord. */
+   main window opens the system print dialog at once.
+   iOS is the exception, standalone or browser: iOS Safari ignores
+   @page margin and size and forces ~10mm margins, so the full-bleed
+   612x792pt HTML sheet overflows the printable area (labels offset,
+   a near-blank second page) and Safari's own footer (page title +
+   date) prints in the forced margins, which no page CSS can remove.
+   So every iOS print goes through the share sheet instead: Share ->
+   Print prints the PDF itself, one page, exact geometry, no added
+   text. Standalone has no print UI at all, which is the same fix
+   for a second reason. Item-label sheets have their own HTML path
+   in printItemRecord, gated by the same useHtmlPrint. */
 function isCoarsePointer() {
   return !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
 }
-function iosStandalone() {
-  if (window.navigator && window.navigator.standalone) return true;
-  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  return !!(ios && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-}
+/* isIos lives with the install helpers below: one iOS test for the
+   whole app (UA match, plus iPadOS 13+, which reports MacIntel). */
 function useHtmlPrint() {
-  if (iosStandalone()) return false;
+  if (isIos()) return false;
   return isCoarsePointer();
 }
 
@@ -430,9 +433,10 @@ async function printPdfBytes(bytes, sheet) {
     try { printHtmlSheet(sheet.sizeTexts, sheet.barcode); return; }
     catch (e) { /* fall through to the PDF flow, never worse than today */ }
   }
-  /* iOS standalone: no print UI exists, so hand the PDF to the
-     native share sheet instead of the silent hidden-frame path. */
-  if (iosStandalone()) {
+  /* iOS (standalone or browser): hand the PDF to the native share
+     sheet instead of the HTML path (forced margins, footer text,
+     second page) or the silent hidden-frame path. */
+  if (isIos()) {
     const outcome = await sharePdfBytes(bytes, sheet ? 'pantser-size-labels.pdf' : 'pantser-item-labels.pdf');
     if (outcome !== 'unsupported') return;
     /* fall through: share unavailable, today's PDF flow is the last resort */
@@ -565,7 +569,9 @@ window.addEventListener('appinstalled', function () {
   if (typeof renderAll === 'function') renderAll();
 });
 function isIos() {
-  return /iphone|ipad|ipod/i.test(navigator.userAgent || '');
+  if (/iphone|ipad|ipod/i.test(navigator.userAgent || '')) return true;
+  /* iPadOS 13+ reports MacIntel; touch points tell it from a Mac. */
+  return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
 }
 function isStandalone() {
   return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
