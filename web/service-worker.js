@@ -5,8 +5,10 @@
    v1.12.0 shares the PDF via the native share sheet on iOS
    standalone web apps, where no print UI exists.
    v1.13.0 adds a per-label Delete button to the quick-print tray,
-   guarded by a confirm dialog. */
-const CACHE = 'pantser-v23';
+   guarded by a confirm dialog.
+   v1.13.1 adds a Share app row in Settings with a stored QR code
+   that opens the site. */
+const CACHE = 'pantser-v24';
 const ASSETS = [
   './',
   './index.html',
@@ -17,6 +19,7 @@ const ASSETS = [
   './js/pdf-lib.min.js',
   './js/fontkit.umd.min.js',
   './assets/logo_readable.jpg',
+  './assets/share-qr.png',
   './assets/fonts/Tinos-Regular.ttf',
   './assets/fonts/Tinos-Bold.ttf',
   './manifest.json',

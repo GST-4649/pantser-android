@@ -194,6 +194,10 @@ button.primary:active { opacity: .85; }
 }
 #dlg-btns button.go { background: var(--acc); color: #fff; }
 
+/* v1.13.1: Share app QR popup (same shape as JeansMixing). */
+#dlg.share-qr { max-width: 34rem; text-align: center; }
+#dlg.share-qr .qr-wrap img { width: 100%; max-width: 26rem; height: auto; image-rendering: pixelated; }
+
 #print-frame { position: absolute; width: 0; height: 0; border: 0; }
 
 /* v1.9.0: mobile HTML print. The sheet div is screen-hidden; when

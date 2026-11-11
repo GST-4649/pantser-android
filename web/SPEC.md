@@ -303,6 +303,11 @@ settings). The web keeps the same grouping.
 - Export a saved PDF: lists records as "<size> x <date>", copies the chosen
   PDF to user-picked external storage. On the web this becomes a file
   download; recorded in NOT-PORTED.md.
+- Share app (web v1.13.1): opens a fullscreen popup with a stored QR
+  code (assets/share-qr.png) that takes anyone straight to the live
+  site, so they can install the web app from there. The code is
+  generated once for the live address, verified with a real decoder,
+  and cached by the service worker, so the popup works offline.
 
 ### 6.2 Storage & Data page
 

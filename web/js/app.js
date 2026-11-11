@@ -3,7 +3,7 @@
    Default theme only (Linear Modern + Ember Night). Other styles and
    palettes are reserved slots. No em dashes in this file. */
 
-const APP_VERSION = '1.13.0';
+const APP_VERSION = '1.13.1';
 
 /* ---------------- i18n ---------------- */
 function langCode() {
@@ -514,12 +514,13 @@ function closeDialog() {
   document.getElementById('dlg-backdrop').classList.add('hidden');
 }
 function showDialog(opts) {
-  /* opts: {title, msg, options:[{label, sub, checked, later, onPick}], buttons:[{label, primary, onClick}]} */
+  /* opts: {title, msg, html, dialogClass, options:[{label, sub, checked, later, onPick}], buttons:[{label, primary, onClick}]} */
   const bd = document.getElementById('dlg-backdrop');
+  document.getElementById('dlg').className = opts.dialogClass || '';
   document.getElementById('dlg-title').textContent = opts.title || '';
   const msgEl = document.getElementById('dlg-msg');
-  msgEl.textContent = opts.msg || '';
-  msgEl.style.display = opts.msg ? '' : 'none';
+  if (opts.html) { msgEl.innerHTML = opts.html; msgEl.style.display = ''; }
+  else { msgEl.textContent = opts.msg || ''; msgEl.style.display = opts.msg ? '' : 'none'; }
   const list = document.getElementById('dlg-list');
   list.innerHTML = '';
   (opts.options || []).forEach(function (o) {
@@ -1679,6 +1680,7 @@ function renderSettings() {
     }), layout, function (k) { Store.set('layout', k); renderAll(); });
   }));
   u.appendChild(setRow(t('setting_export'), t('setting_export_sub'), null, showExportDialog));
+  u.appendChild(setRow(t('share_app'), t('share_app_sub'), null, showSharePopup));
 
   /* storage */
   document.getElementById('set-storage-title').textContent = t('section_storage');
@@ -1817,6 +1819,21 @@ function showExportDialog() {
         onPick: function () { exportPdf(r); }
       };
     })
+  });
+}
+
+/* Share app: a fullscreen QR code that opens the site straight away.
+   The code is a stored file (assets/share-qr.png), generated once
+   for the live address and verified with a real decoder, so the
+   popup never needs to load or generate anything; the file rides
+   along in the service-worker cache, so it works offline too. */
+function showSharePopup() {
+  showDialog({
+    title: t('share_title'),
+    html: '<div class="qr-wrap"><img src="assets/share-qr.png" alt="' + escHtml(t('share_qr_alt')) + '"></div>' +
+      '<div>' + escHtml(t('share_msg')) + '</div>',
+    dialogClass: 'share-qr',
+    buttons: [{ label: t('btn_close'), primary: true }]
   });
 }
 

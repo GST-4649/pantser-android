@@ -2,6 +2,10 @@
 
 Every publishing ships with its own dated, versioned entry.
 
+## [2026-11-11] [v1.13.1]
+- Added: a Share app row in Settings (Utilities page). It opens a fullscreen popup with a QR code that takes anyone straight to the site, so they can install the web app from there. The code is a stored file (assets/share-qr.png), generated once for the live address and verified with a real decoder, and it rides in the service-worker cache, so the popup works offline too. Same shape as JeansMixing's Share app.
+- Service worker cache bumped to pantser-v24.
+
 ## [2026-10-31] [v1.13.0]
 - Added: each quick-print tray row now has a Delete button, so a single label (a typo, say) can be removed without wiping anything else. Tapping it asks "Delete this label?" first; confirming removes the label and its saved PDF.
 - Fixed: iOS Safari browser printing printed the HTML sheet offset across two pages with Safari's own footer (title + date) on both. Cause: iOS Safari ignores @page margin/size and forces ~10mm margins, so the full-bleed sheet overflowed and the footer always prints in the forced margins. iOS printing now goes through the native share sheet (same as the installed app since v1.12.0) in both standalone and browser: Share -> Print prints the clean PDF, one page, no added text. Android and desktop paths unchanged.
