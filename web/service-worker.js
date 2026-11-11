@@ -7,8 +7,10 @@
    v1.13.0 adds a per-label Delete button to the quick-print tray,
    guarded by a confirm dialog.
    v1.13.1 adds a Share app row in Settings with a stored QR code
-   that opens the site. */
-const CACHE = 'pantser-v24';
+   that opens the site.
+   v1.13.2 rewords the home screen in barcode mode: the prompt asks
+   for the barcode number and the single box takes it. */
+const CACHE = 'pantser-v25';
 const ASSETS = [
   './',
   './index.html',

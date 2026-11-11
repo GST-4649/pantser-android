@@ -3,7 +3,7 @@
    Default theme only (Linear Modern + Ember Night). Other styles and
    palettes are reserved slots. No em dashes in this file. */
 
-const APP_VERSION = '1.13.1';
+const APP_VERSION = '1.13.2';
 
 /* ---------------- i18n ---------------- */
 function langCode() {
@@ -846,6 +846,9 @@ function twoBoxOn() {
   if (v === 'false') return false;
   return wideLayout();
 }
+function barcodeOn() {
+  return Store.flag('barcode', false);
+}
 
 /* Wide-layout home screen: the two-box and barcode switches as cards
    at the top left, built by the same switchRow() and bound to the same
@@ -876,7 +879,14 @@ function renderHomeChips() {
 }
 
 function renderHome() {
-  document.getElementById('home-prompt').textContent = t('prompt_what_size');
+  /* Barcode mode rewords the home screen: the prompt asks for the
+     barcode number and the single box takes it (a barcode is one
+     number, so the two-box and advanced column inputs step aside
+     while barcode mode is on — the two 2-digit boxes could never
+     hold a barcode number). Same on mobile and desktop. */
+  const barcode = barcodeOn();
+  document.getElementById('home-prompt').textContent = t(barcode ? 'prompt_barcode' : 'prompt_what_size');
+  document.getElementById('btn-mode-swap').setAttribute('aria-label', t('swap_mode'));
   document.getElementById('home-layout').textContent = t('using_layout', Store.get('layout', '4x15'));
   document.getElementById('home-privacy').textContent = t('privacy_note');
   const wrap = document.getElementById('home-inputs');
@@ -885,13 +895,14 @@ function renderHome() {
   const cols = layoutColsRows()[0];
   const jumpBtn = document.getElementById('btn-jump');
 
-  const twoBox = !advanced && twoBoxOn();
-  if (!advanced && !twoBox) {
+  const twoBox = !advanced && twoBoxOn() && !barcode;
+  if (barcode || (!advanced && !twoBox)) {
     wrap.classList.remove('row');
     const inp = document.createElement('input');
     inp.type = 'text'; inp.id = 'classic-input';
-    inp.placeholder = t('hint_example'); inp.value = classicMem;
-    inp.setAttribute('aria-label', t('prompt_what_size'));
+    inp.placeholder = t(barcode ? 'hint_barcode' : 'hint_example'); inp.value = classicMem;
+    if (barcode) inp.inputMode = 'numeric';
+    inp.setAttribute('aria-label', t(barcode ? 'prompt_barcode' : 'prompt_what_size'));
     inp.addEventListener('input', function () { classicMem = inp.value; saveDrafts(); });
     inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') doCreateClassic(); });
     wrap.appendChild(inp);
@@ -1930,6 +1941,15 @@ async function init() {
   });
   document.getElementById('btn-info').addEventListener('click', function () {
     if (currentView === 'info') goHome(); else showView('info');
+  });
+  /* v1.13.2: the mode-swap button next to the prompt (mobile only —
+     desktop has the barcode toggle in the home chips). It flips the
+     same barcode flag the chips and Settings switch use, so all three
+     stay in sync; the two-box flag is untouched, so turning barcode
+     off brings the two-box input straight back if it was on. */
+  document.getElementById('btn-mode-swap').addEventListener('click', function () {
+    Store.setFlag('barcode', !barcodeOn());
+    renderAll();
   });
 
   /* swipe along the enabled main pages, in dock order */

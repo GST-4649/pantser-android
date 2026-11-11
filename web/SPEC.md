@@ -289,7 +289,18 @@ settings). The web keeps the same grouping.
   text. Applies to classic and Advanced mode. A size can exist as both
   a text record and a barcode record (record field `kind`); duplicates
   consolidate per size AND kind, and quick-print tray rows reprint with
-  the record's own kind. Text that Code 128 set B cannot encode falls
+  the record's own kind. Since web v1.13.2 the home screen rewords
+  itself while barcode mode is on (mobile and desktop alike): the
+  prompt reads "Enter the barcode number", the single box shows
+  "number:" and brings up the phone number pad, and the two-box and
+  advanced column inputs step aside — a barcode is one number, and
+  the two 2-digit boxes could never hold one. Barcode off is
+  unchanged. A swap button (⇄) sits right after the prompt, mobile
+  only — desktop hides it, since the home chips already carry the
+  barcode toggle there — and tapping it flips the same barcode flag
+  the chips and Settings switch use, so all three stay in sync; the
+  two-box flag is untouched, so switching barcode mode off restores
+  the two-box input if it was on. Text that Code 128 set B cannot encode falls
   back to the normal text cell.
 - Barcode set selection (web v1.7.2): an all-digit size of even
   length (2 or more digits) encodes as Code 128 set C (digit pairs),
@@ -425,10 +436,13 @@ second string. The web dictionary must ship both tables in full.
 app_name = Pantser
 retro_title = Pantser - [Main Window]
 prompt_what_size = What size?
+prompt_barcode = Enter the barcode number
+swap_mode = Switch between size and barcode mode
 generate_pdf = Generate PDF
 using_layout = Using %1$s US Layout
 privacy_note = Your label PDF is stored privately and reused by dimensions.
 hint_example = e.g. 32 x 30
+hint_barcode = number:
 create_label_btn = CREATE LABEL  →
 label_column_x = Column %1$d
 jump_to_previous_unsaved = <- Jump to previous blank size
@@ -520,10 +534,13 @@ lang_es = Espanol
 app_name = Pantser
 retro_title = Pantser - [Ventana Principal]
 prompt_what_size = ¿Qué tamaño?
+prompt_barcode = Ingresa el número de código de barras
+swap_mode = Cambiar entre modo de talla y modo de código de barras
 generate_pdf = Generar PDF
 using_layout = Usando diseño US %1$s
 privacy_note = Su PDF se guarda de forma privada y se reutiliza por dimensiones.
 hint_example = ej. 32 x 30
+hint_barcode = número:
 create_label_btn = CREAR ETIQUETA  →
 setting_print_mode = Modo de Impresión
 print_mode_classic = Clásico

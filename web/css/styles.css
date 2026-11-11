@@ -82,6 +82,11 @@ body {
 .hidden { display: none !important; }
 
 .prompt { font-size: 1.125rem; font-weight: 700; margin: 0.5rem 0 0.25rem; }
+/* v1.13.2: the mode-swap button sits right after the prompt, mobile
+   only — on wide screens the home chips carry the barcode toggle, so
+   the button hides there (same breakpoint as the chips). */
+.prompt-row { display: flex; align-items: center; gap: 0.5rem; }
+#btn-mode-swap { font-size: 1.5rem; padding: 0.625rem 0.75rem; line-height: 1; }
 .layout-line { color: var(--muted); font-size: 0.875rem; margin-bottom: 0.25rem; }
 .privacy { color: var(--muted); font-size: 0.8125rem; margin-bottom: 1rem; }
 
@@ -256,6 +261,8 @@ p { line-height: 1.55; }
   #topbar-title { position: absolute; left: 50%; transform: translateX(-50%); }
   .page > * { max-width: 46rem; margin-left: auto; margin-right: auto; }
   #view-home .prompt { text-align: center; font-size: 1.75rem; margin-top: 5vh; }
+  #view-home .prompt-row { justify-content: center; }
+  #btn-mode-swap { display: none; }
   #view-home .layout-line, #view-home .privacy { text-align: center; }
   #home-inputs { max-width: 40rem; }
   #home-inputs input[type="text"] {

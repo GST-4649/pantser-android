@@ -2,6 +2,11 @@
 
 Every publishing ships with its own dated, versioned entry.
 
+## [2026-11-11] [v1.13.2]
+- Changed: with the Barcode labels switch on, the home screen now asks "Enter the barcode number" instead of "What size?", and the input shows "number:" instead of "e.g. 32 x 30". A barcode is one number, so the single box takes it — the two-box and advanced column inputs step aside while barcode mode is on (the two 2-digit boxes could never hold a barcode number), and the phone number pad comes up for typing it. Same on mobile and desktop. Barcode off is unchanged.
+- Added: a swap button (⇄) right after the prompt, mobile only — tapping it flips between size mode and barcode mode without opening Settings. It flips the same barcode switch the home chips and Settings use, so all three stay in sync; turning barcode mode off brings the two-box input straight back if it was on before. Desktop has no button because the home chips already carry the barcode toggle there.
+- Service worker cache bumped to pantser-v25.
+
 ## [2026-11-11] [v1.13.1]
 - Added: a Share app row in Settings (Utilities page). It opens a fullscreen popup with a QR code that takes anyone straight to the site, so they can install the web app from there. The code is a stored file (assets/share-qr.png), generated once for the live address and verified with a real decoder, and it rides in the service-worker cache, so the popup works offline too. Same shape as JeansMixing's Share app.
 - Service worker cache bumped to pantser-v24.
