@@ -301,10 +301,12 @@ settings). The web keeps the same grouping.
   the chips and Settings switch use, so all three stay in sync; the
   two-box flag is untouched, so switching barcode mode off restores
   the two-box input if it was on. Since web v1.14.0 a barcode scanner
-  is available behind an experimental switch in Advanced settings
-  ("Barcode scan button"): in barcode mode on mobile it shows a
-  circular scan button to the right of the box, the box shrinking
-  from the right so the pair sits centered; desktop hides the button.
+  is available: in barcode mode on mobile it shows a scan button to
+  the right of the box, the box shrinking from the right so the pair
+  sits centered; desktop hides the button. (v1.14.0 gated it behind
+  an experimental Advanced switch; v1.14.1 dropped the switch — the
+  button is always there in barcode mode — and made it a rounded
+  square matching the text box instead of a circle.)
   Tapping it opens a fullscreen live camera preview with corner
   guides, asks for the camera immediately in the tap (no library
   load waits in between, so the phone actually prompts — the
@@ -452,8 +454,6 @@ retro_title = Pantser - [Main Window]
 prompt_what_size = What size?
 prompt_barcode = Enter the barcode number
 swap_mode = Switch between size and barcode mode
-setting_barcode_scan = Barcode scan button (experimental)
-setting_barcode_scan_sub = Show a camera scan button next to the barcode box
 scan_button_label = Scan a barcode
 scan_point = Point the camera at the barcode
 scan_blocked = Camera access is blocked — allow the camera for this site and try again.
@@ -559,8 +559,6 @@ retro_title = Pantser - [Ventana Principal]
 prompt_what_size = ¿Qué tamaño?
 prompt_barcode = Ingresa el número de código de barras
 swap_mode = Cambiar entre modo de talla y modo de código de barras
-setting_barcode_scan = Botón de escaneo de código de barras (experimental)
-setting_barcode_scan_sub = Muestra un botón de escaneo con cámara junto a la casilla de código de barras
 scan_button_label = Escanear un código de barras
 scan_point = Apunta la cámara al código de barras
 scan_blocked = El acceso a la cámara está bloqueado: permite la cámara para este sitio e inténtalo de nuevo.

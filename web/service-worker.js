@@ -10,11 +10,12 @@
    that opens the site.
    v1.13.2 rewords the home screen in barcode mode: the prompt asks
    for the barcode number and the single box takes it.
-   v1.14.0 adds a barcode scanner: a circular scan button next to the
-   barcode box (mobile, experimental toggle in Advanced settings)
-   opens a live camera preview and reads 1D barcodes with the vendored
-   ZXing reader. */
-const CACHE = 'pantser-v26';
+   v1.14.0 adds a barcode scanner: a scan button next to the barcode
+   box (mobile, experimental toggle in Advanced settings) opens a live
+   camera preview and reads 1D barcodes with the vendored ZXing reader.
+   v1.14.1 drops the toggle (the button is always there in barcode
+   mode) and makes it a rounded square matching the text box. */
+const CACHE = 'pantser-v27';
 const ASSETS = [
   './',
   './index.html',

@@ -3,7 +3,7 @@
    Default theme only (Linear Modern + Ember Night). Other styles and
    palettes are reserved slots. No em dashes in this file. */
 
-const APP_VERSION = '1.14.0';
+const APP_VERSION = '1.14.1';
 
 /* ---------------- i18n ---------------- */
 function langCode() {
@@ -849,9 +849,6 @@ function twoBoxOn() {
 function barcodeOn() {
   return Store.flag('barcode', false);
 }
-function scanOn() {
-  return Store.flag('barcode_scan', false);
-}
 
 /* Wide-layout home screen: the two-box and barcode switches as cards
    at the top left, built by the same switchRow() and bound to the same
@@ -908,10 +905,11 @@ function renderHome() {
     inp.setAttribute('aria-label', t(barcode ? 'prompt_barcode' : 'prompt_what_size'));
     inp.addEventListener('input', function () { classicMem = inp.value; saveDrafts(); });
     inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') doCreateClassic(); });
-    /* v1.14.0: barcode mode + experimental scan toggle (mobile only —
-       the button hides on wide screens): the box gives up room from
-       its right side for a circular scan button, the pair centered. */
-    if (barcode && scanOn()) {
+    /* v1.14.0: barcode mode (mobile only — the button hides on wide
+       screens): the box gives up room from its right side for the
+       scan button, the pair centered. v1.14.1: no toggle anymore, the
+       button is always there in barcode mode. */
+    if (barcode) {
       const row = document.createElement('div');
       row.className = 'scan-row';
       row.appendChild(inp);
@@ -1080,9 +1078,10 @@ function doCreateAdvanced() {
 }
 
 /* ---------------- barcode scanner (web v1.14.0) ----------------
-   The circular button next to the barcode box (mobile, experimental
-   toggle in Advanced settings) opens a fullscreen live preview and
-   reads 1D barcodes with the vendored ZXing reader. The camera is
+   The scan button next to the barcode box (mobile, always there in
+   barcode mode since v1.14.1 — the experimental toggle is gone)
+   opens a fullscreen live preview and reads 1D barcodes with the
+   vendored ZXing reader. The camera is
    requested immediately in the tap handler — no library load waits
    in between — so the phone actually prompts for permission (the
    JeansMixing QR scanner loads its reader from a CDN first, and that
@@ -1885,10 +1884,6 @@ function renderSettings() {
     customMarginsOn(),
     function (on) { Store.setFlag('custom_margins', on); renderAll(); }));
   av.appendChild(marginRow());
-  /* v1.14.0: experimental barcode scan button for the home screen. */
-  av.appendChild(switchRow(t('setting_barcode_scan'), t('setting_barcode_scan_sub'),
-    scanOn(),
-    function (on) { Store.setFlag('barcode_scan', on); renderAll(); }));
 }
 
 function stepperRow(title, sub, valueText, disabled, onBump) {

@@ -87,13 +87,15 @@ body {
    the button hides there (same breakpoint as the chips). */
 .prompt-row { display: flex; align-items: center; gap: 0.5rem; }
 #btn-mode-swap { font-size: 1.5rem; padding: 0.625rem 0.75rem; line-height: 1; }
-/* v1.14.0: barcode scan button — a circular button beside the barcode
-   box (mobile only, like the swap button). The row holds the pair
-   centered; the box gives up room from its right side. */
+/* v1.14.0: barcode scan button beside the barcode box (mobile only,
+   like the swap button). The row holds the pair centered; the box
+   gives up room from its right side. v1.14.1: a rounded square
+   matching the text box (same 0.625rem radius, stretched to the
+   box's height) — not a circle. */
 .scan-row { display: flex; align-items: center; gap: 0.5rem; }
 .scan-row input[type="text"] { flex: 1 1 auto; min-width: 0; }
 .scan-btn {
-  flex: 0 0 auto; width: 3rem; height: 3rem; border-radius: 50%;
+  flex: 0 0 auto; align-self: stretch; width: 3.25rem; border-radius: 0.625rem;
   border: 0.0625rem solid var(--acc); background: var(--surf); color: var(--acc);
   display: flex; align-items: center; justify-content: center; cursor: pointer;
 }
