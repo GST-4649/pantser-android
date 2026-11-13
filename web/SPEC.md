@@ -300,7 +300,21 @@ settings). The web keeps the same grouping.
   barcode toggle there — and tapping it flips the same barcode flag
   the chips and Settings switch use, so all three stay in sync; the
   two-box flag is untouched, so switching barcode mode off restores
-  the two-box input if it was on. Text that Code 128 set B cannot encode falls
+  the two-box input if it was on. Since web v1.14.0 a barcode scanner
+  is available behind an experimental switch in Advanced settings
+  ("Barcode scan button"): in barcode mode on mobile it shows a
+  circular scan button to the right of the box, the box shrinking
+  from the right so the pair sits centered; desktop hides the button.
+  Tapping it opens a fullscreen live camera preview with corner
+  guides, asks for the camera immediately in the tap (no library
+  load waits in between, so the phone actually prompts — the
+  JeansMixing QR scanner loads its reader from a CDN first, and that
+  wait can miss the tap's permission window on iPhone, leaving a
+  black preview), and reads 1D barcodes with the vendored ZXing
+  reader (Code 128, EAN-13/8, UPC-A/E, Code 39, Code 93, ITF,
+  Codabar). One read fills the box, toasts "Got it!" and closes the
+  scanner; it never creates the label. Blocked access shows a plain
+  message telling the user to allow the camera for the site. Text that Code 128 set B cannot encode falls
   back to the normal text cell.
 - Barcode set selection (web v1.7.2): an all-digit size of even
   length (2 or more digits) encodes as Code 128 set C (digit pairs),
@@ -438,6 +452,15 @@ retro_title = Pantser - [Main Window]
 prompt_what_size = What size?
 prompt_barcode = Enter the barcode number
 swap_mode = Switch between size and barcode mode
+setting_barcode_scan = Barcode scan button (experimental)
+setting_barcode_scan_sub = Show a camera scan button next to the barcode box
+scan_button_label = Scan a barcode
+scan_point = Point the camera at the barcode
+scan_blocked = Camera access is blocked — allow the camera for this site and try again.
+scan_no_camera = This device has no camera to use here.
+scan_no_reader = The barcode reader couldn't load — try again.
+scan_failed = The camera couldn't start — try again.
+scan_got_it = Got it!
 generate_pdf = Generate PDF
 using_layout = Using %1$s US Layout
 privacy_note = Your label PDF is stored privately and reused by dimensions.
@@ -536,6 +559,15 @@ retro_title = Pantser - [Ventana Principal]
 prompt_what_size = ¿Qué tamaño?
 prompt_barcode = Ingresa el número de código de barras
 swap_mode = Cambiar entre modo de talla y modo de código de barras
+setting_barcode_scan = Botón de escaneo de código de barras (experimental)
+setting_barcode_scan_sub = Muestra un botón de escaneo con cámara junto a la casilla de código de barras
+scan_button_label = Escanear un código de barras
+scan_point = Apunta la cámara al código de barras
+scan_blocked = El acceso a la cámara está bloqueado: permite la cámara para este sitio e inténtalo de nuevo.
+scan_no_camera = Este dispositivo no tiene cámara para usar aquí.
+scan_no_reader = No se pudo cargar el lector de códigos de barras: inténtalo de nuevo.
+scan_failed = No se pudo iniciar la cámara: inténtalo de nuevo.
+scan_got_it = ¡Listo!
 generate_pdf = Generar PDF
 using_layout = Usando diseño US %1$s
 privacy_note = Su PDF se guarda de forma privada y se reutiliza por dimensiones.

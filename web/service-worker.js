@@ -9,8 +9,12 @@
    v1.13.1 adds a Share app row in Settings with a stored QR code
    that opens the site.
    v1.13.2 rewords the home screen in barcode mode: the prompt asks
-   for the barcode number and the single box takes it. */
-const CACHE = 'pantser-v25';
+   for the barcode number and the single box takes it.
+   v1.14.0 adds a barcode scanner: a circular scan button next to the
+   barcode box (mobile, experimental toggle in Advanced settings)
+   opens a live camera preview and reads 1D barcodes with the vendored
+   ZXing reader. */
+const CACHE = 'pantser-v26';
 const ASSETS = [
   './',
   './index.html',
@@ -20,6 +24,7 @@ const ASSETS = [
   './js/strings-web.js',
   './js/pdf-lib.min.js',
   './js/fontkit.umd.min.js',
+  './js/zxing.min.js',
   './assets/logo_readable.jpg',
   './assets/share-qr.png',
   './assets/fonts/Tinos-Regular.ttf',

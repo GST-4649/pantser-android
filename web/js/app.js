@@ -3,7 +3,7 @@
    Default theme only (Linear Modern + Ember Night). Other styles and
    palettes are reserved slots. No em dashes in this file. */
 
-const APP_VERSION = '1.13.2';
+const APP_VERSION = '1.14.0';
 
 /* ---------------- i18n ---------------- */
 function langCode() {
@@ -849,6 +849,9 @@ function twoBoxOn() {
 function barcodeOn() {
   return Store.flag('barcode', false);
 }
+function scanOn() {
+  return Store.flag('barcode_scan', false);
+}
 
 /* Wide-layout home screen: the two-box and barcode switches as cards
    at the top left, built by the same switchRow() and bound to the same
@@ -905,7 +908,23 @@ function renderHome() {
     inp.setAttribute('aria-label', t(barcode ? 'prompt_barcode' : 'prompt_what_size'));
     inp.addEventListener('input', function () { classicMem = inp.value; saveDrafts(); });
     inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') doCreateClassic(); });
-    wrap.appendChild(inp);
+    /* v1.14.0: barcode mode + experimental scan toggle (mobile only —
+       the button hides on wide screens): the box gives up room from
+       its right side for a circular scan button, the pair centered. */
+    if (barcode && scanOn()) {
+      const row = document.createElement('div');
+      row.className = 'scan-row';
+      row.appendChild(inp);
+      const scanBtn = document.createElement('button');
+      scanBtn.type = 'button'; scanBtn.id = 'btn-scan'; scanBtn.className = 'scan-btn';
+      scanBtn.setAttribute('aria-label', t('scan_button_label'));
+      scanBtn.innerHTML = '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="currentColor"><rect x="2.5" y="4" width="2" height="16"/><rect x="6" y="4" width="1" height="16"/><rect x="8.5" y="4" width="3" height="16"/><rect x="13" y="4" width="1.5" height="16"/><rect x="16" y="4" width="1" height="16"/><rect x="18.5" y="4" width="2" height="16"/></svg>';
+      scanBtn.addEventListener('click', function () { openBarcodeScanner(); });
+      row.appendChild(scanBtn);
+      wrap.appendChild(row);
+    } else {
+      wrap.appendChild(inp);
+    }
     jumpBtn.classList.add('hidden');
   } else if (twoBox) {
     wrap.classList.remove('row');
@@ -1058,6 +1077,89 @@ function doCreateAdvanced() {
   document.querySelectorAll('#home-inputs input').forEach(function (el) { el.value = ''; });
   if (vals.some(function (v) { return v === ''; })) { toast(t('err_invalid_column')); return; }
   createLabel(vals.join('|'));
+}
+
+/* ---------------- barcode scanner (web v1.14.0) ----------------
+   The circular button next to the barcode box (mobile, experimental
+   toggle in Advanced settings) opens a fullscreen live preview and
+   reads 1D barcodes with the vendored ZXing reader. The camera is
+   requested immediately in the tap handler — no library load waits
+   in between — so the phone actually prompts for permission (the
+   JeansMixing QR scanner loads its reader from a CDN first, and that
+   wait can miss the tap's permission window on iPhone, leaving a
+   black preview). One read fills the box, says "Got it!" and closes;
+   it never creates the label — alex taps Create himself. */
+var scanOpen = false, scanStream = null, scanReader = null;
+function scanStatus(text) { document.getElementById('scanStatus').textContent = text; }
+function scanStopTracks(stream) {
+  if (!stream) return;
+  stream.getTracks().forEach(function (tr) { try { tr.stop(); } catch (e) {} });
+}
+function stopBarcodeScanner() {
+  scanOpen = false;
+  if (scanReader) { try { scanReader.reset(); } catch (e) {} scanReader = null; }
+  if (scanStream) { scanStopTracks(scanStream); scanStream = null; }
+  const v = document.getElementById('scanVideo');
+  if (v) {
+    try { v.pause(); } catch (e) {}
+    v.srcObject = null;
+  }
+  document.getElementById('scanOverlay').classList.remove('open');
+}
+function onBarcodeScanned(text) {
+  const v = (text || '').trim();
+  stopBarcodeScanner();
+  if (!v) return;
+  classicMem = v; saveDrafts();
+  const el = document.getElementById('classic-input');
+  if (el) el.value = v;
+  toast(t('scan_got_it'));
+}
+function openBarcodeScanner() {
+  if (scanOpen) return;
+  scanOpen = true;
+  scanStatus(t('scan_point'));
+  document.getElementById('scanCancel').textContent = t('btn_cancel');
+  document.getElementById('scanOverlay').classList.add('open');
+  if (typeof ZXing === 'undefined') { scanStatus(t('scan_no_reader')); return; }
+  const nav = (typeof navigator !== 'undefined') ? navigator : null;
+  if (!nav || !nav.mediaDevices || !nav.mediaDevices.getUserMedia) {
+    scanStatus(t('scan_no_camera')); return;
+  }
+  /* Ask for the camera right now, inside the tap: the prompt must
+     come from the gesture or the phone may never show it. The stream
+     is requested first and handed to the reader, so no reader setup
+     ever delays the permission prompt. */
+  nav.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+    .then(function (stream) {
+      if (!scanOpen) { scanStopTracks(stream); return; }
+      scanStream = stream;
+      const v = document.getElementById('scanVideo');
+      v.srcObject = stream;
+      const pr = (typeof v.play === 'function') ? v.play() : null;
+      if (pr && pr.catch) pr.catch(function () {});
+      const hints = new Map();
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+        ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
+        ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.UPC_E, ZXing.BarcodeFormat.CODE_39,
+        ZXing.BarcodeFormat.CODE_93, ZXing.BarcodeFormat.ITF, ZXing.BarcodeFormat.CODABAR
+      ]);
+      scanReader = new ZXing.BrowserMultiFormatReader(hints, 200);
+      const dp = scanReader.decodeFromStream(stream, v, function (result) {
+        if (!scanOpen) return;
+        if (result) onBarcodeScanned(result.getText());
+        /* Per-frame misses (NotFoundException and friends) are the
+           normal "nothing in frame yet" — ignore them. */
+      });
+      if (dp && dp.catch) dp.catch(function () {});
+    })
+    .catch(function (err) {
+      if (!scanOpen) return;
+      const name = err && err.name;
+      if (name === 'NotAllowedError' || name === 'SecurityError') scanStatus(t('scan_blocked'));
+      else if (name === 'NotFoundError' || name === 'OverconstrainedError') scanStatus(t('scan_no_camera'));
+      else scanStatus(t('scan_failed'));
+    });
 }
 
 /* ---------------- quick-print tray ---------------- */
@@ -1783,6 +1885,10 @@ function renderSettings() {
     customMarginsOn(),
     function (on) { Store.setFlag('custom_margins', on); renderAll(); }));
   av.appendChild(marginRow());
+  /* v1.14.0: experimental barcode scan button for the home screen. */
+  av.appendChild(switchRow(t('setting_barcode_scan'), t('setting_barcode_scan_sub'),
+    scanOn(),
+    function (on) { Store.setFlag('barcode_scan', on); renderAll(); }));
 }
 
 function stepperRow(title, sub, valueText, disabled, onBump) {
@@ -1942,6 +2048,7 @@ async function init() {
   document.getElementById('btn-info').addEventListener('click', function () {
     if (currentView === 'info') goHome(); else showView('info');
   });
+  document.getElementById('scanCancel').addEventListener('click', stopBarcodeScanner);
   /* v1.13.2: the mode-swap button next to the prompt (mobile only —
      desktop has the barcode toggle in the home chips). It flips the
      same barcode flag the chips and Settings switch use, so all three

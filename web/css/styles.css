@@ -87,6 +87,45 @@ body {
    the button hides there (same breakpoint as the chips). */
 .prompt-row { display: flex; align-items: center; gap: 0.5rem; }
 #btn-mode-swap { font-size: 1.5rem; padding: 0.625rem 0.75rem; line-height: 1; }
+/* v1.14.0: barcode scan button — a circular button beside the barcode
+   box (mobile only, like the swap button). The row holds the pair
+   centered; the box gives up room from its right side. */
+.scan-row { display: flex; align-items: center; gap: 0.5rem; }
+.scan-row input[type="text"] { flex: 1 1 auto; min-width: 0; }
+.scan-btn {
+  flex: 0 0 auto; width: 3rem; height: 3rem; border-radius: 50%;
+  border: 0.0625rem solid var(--acc); background: var(--surf); color: var(--acc);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.scan-btn svg { display: block; }
+
+/* v1.14.0: barcode scanner overlay — fullscreen live preview with
+   corner guides, mirroring the JeansMixing QR scanner. */
+#scanOverlay {
+  display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
+  align-items: flex-start; justify-content: center; z-index: 102;
+  overflow-y: auto; padding: 1rem;
+}
+#scanOverlay.open { display: flex; }
+#scanBox { width: 100%; max-width: 30rem; margin: auto; }
+#scanStage {
+  position: relative; width: 100%; aspect-ratio: 4/3; background: #000;
+  border-radius: 0.75rem; overflow: hidden;
+}
+#scanVideo { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scan-corner {
+  position: absolute; width: 2.2rem; height: 2.2rem; border: 0.25rem solid #fff;
+  opacity: 0.9; pointer-events: none;
+}
+.scan-corner.tl { top: 12%; left: 12%; border-right: none; border-bottom: none; border-top-left-radius: 0.5rem; }
+.scan-corner.tr { top: 12%; right: 12%; border-left: none; border-bottom: none; border-top-right-radius: 0.5rem; }
+.scan-corner.bl { bottom: 12%; left: 12%; border-right: none; border-top: none; border-bottom-left-radius: 0.5rem; }
+.scan-corner.br { bottom: 12%; right: 12%; border-left: none; border-top: none; border-bottom-right-radius: 0.5rem; }
+#scanStatus { color: #fff; text-align: center; margin: 0.875rem 0; line-height: 1.45; }
+#scanCancel {
+  width: 100%; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid #fff;
+  background: transparent; color: #fff; font: inherit; cursor: pointer;
+}
 .layout-line { color: var(--muted); font-size: 0.875rem; margin-bottom: 0.25rem; }
 .privacy { color: var(--muted); font-size: 0.8125rem; margin-bottom: 1rem; }
 
@@ -263,6 +302,7 @@ p { line-height: 1.55; }
   #view-home .prompt { text-align: center; font-size: 1.75rem; margin-top: 5vh; }
   #view-home .prompt-row { justify-content: center; }
   #btn-mode-swap { display: none; }
+  #btn-scan { display: none; }
   #view-home .layout-line, #view-home .privacy { text-align: center; }
   #home-inputs { max-width: 40rem; }
   #home-inputs input[type="text"] {

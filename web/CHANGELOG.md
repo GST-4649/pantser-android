@@ -2,6 +2,11 @@
 
 Every publishing ships with its own dated, versioned entry.
 
+## [2026-11-12] [v1.14.0]
+- Added: a barcode scanner. A new Advanced settings switch, "Barcode scan button (experimental)", shows a circular scan button next to the barcode box on mobile — the box shrinks from the right so the pair sits centered together. Tapping it opens a fullscreen live camera preview with corner guides; the moment a barcode reads, it says "Got it!", fills the number into the box, and closes. It only fills the box — the label is still created with the Create button. Reads Code 128, EAN-13/8, UPC-A/E, Code 39, Code 93, ITF and Codabar with the ZXing reader, vendored inside the app so it works offline. Desktop hides the button, like the swap button.
+- Fixed (by design): the scanner asks for the camera immediately on tap, with the reader already inside the app — the JeansMixing QR scanner loads its reader from the internet first, and that wait can miss the tap's permission window on iPhone, leaving a black preview. Blocked access shows a plain message telling you to allow the camera for the site.
+- Service worker cache bumped to pantser-v26.
+
 ## [2026-11-11] [v1.13.2]
 - Changed: with the Barcode labels switch on, the home screen now asks "Enter the barcode number" instead of "What size?", and the input shows "number:" instead of "e.g. 32 x 30". A barcode is one number, so the single box takes it — the two-box and advanced column inputs step aside while barcode mode is on (the two 2-digit boxes could never hold a barcode number), and the phone number pad comes up for typing it. Same on mobile and desktop. Barcode off is unchanged.
 - Added: a swap button (⇄) right after the prompt, mobile only — tapping it flips between size mode and barcode mode without opening Settings. It flips the same barcode switch the home chips and Settings use, so all three stay in sync; turning barcode mode off brings the two-box input straight back if it was on before. Desktop has no button because the home chips already carry the barcode toggle there.
