@@ -3,7 +3,7 @@
    Default theme only (Linear Modern + Ember Night). Other styles and
    palettes are reserved slots. No em dashes in this file. */
 
-const APP_VERSION = '1.14.1';
+const APP_VERSION = '1.14.2';
 
 /* ---------------- i18n ---------------- */
 function langCode() {
@@ -905,10 +905,10 @@ function renderHome() {
     inp.setAttribute('aria-label', t(barcode ? 'prompt_barcode' : 'prompt_what_size'));
     inp.addEventListener('input', function () { classicMem = inp.value; saveDrafts(); });
     inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') doCreateClassic(); });
-    /* v1.14.0: barcode mode (mobile only — the button hides on wide
-       screens): the box gives up room from its right side for the
-       scan button, the pair centered. v1.14.1: no toggle anymore, the
-       button is always there in barcode mode. */
+    /* v1.14.0: barcode mode: the box gives up room from its right
+       side for the scan button, the pair centered. v1.14.1: no
+       toggle anymore, the button is always there in barcode mode.
+       v1.14.2: on desktop too, as a pill. */
     if (barcode) {
       const row = document.createElement('div');
       row.className = 'scan-row';
@@ -1078,10 +1078,10 @@ function doCreateAdvanced() {
 }
 
 /* ---------------- barcode scanner (web v1.14.0) ----------------
-   The scan button next to the barcode box (mobile, always there in
-   barcode mode since v1.14.1 — the experimental toggle is gone)
-   opens a fullscreen live preview and reads 1D barcodes with the
-   vendored ZXing reader. The camera is
+   The scan button next to the barcode box (always there in barcode
+   mode since v1.14.1 — the experimental toggle is gone; on desktop
+   too since v1.14.2) opens a fullscreen live preview and reads 1D
+   barcodes with the vendored ZXing reader. The camera is
    requested immediately in the tap handler — no library load waits
    in between — so the phone actually prompts for permission (the
    JeansMixing QR scanner loads its reader from a CDN first, and that
@@ -1114,6 +1114,19 @@ function onBarcodeScanned(text) {
   if (el) el.value = v;
   toast(t('scan_got_it'));
 }
+function requestScanCamera() {
+  const nav = navigator;
+  /* Rear camera first (phones). Desktop webcams usually have no rear
+     camera to match, so an OverconstrainedError retries with any
+     camera instead of failing. */
+  return nav.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+    .catch(function (err) {
+      if (err && err.name === 'OverconstrainedError') {
+        return nav.mediaDevices.getUserMedia({ video: true, audio: false });
+      }
+      throw err;
+    });
+}
 function openBarcodeScanner() {
   if (scanOpen) return;
   scanOpen = true;
@@ -1129,7 +1142,7 @@ function openBarcodeScanner() {
      come from the gesture or the phone may never show it. The stream
      is requested first and handed to the reader, so no reader setup
      ever delays the permission prompt. */
-  nav.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+  requestScanCamera()
     .then(function (stream) {
       if (!scanOpen) { scanStopTracks(stream); return; }
       scanStream = stream;

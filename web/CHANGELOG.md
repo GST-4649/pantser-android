@@ -2,6 +2,11 @@
 
 Every publishing ships with its own dated, versioned entry.
 
+## [2026-11-15] [v1.14.2]
+- Changed: the barcode scan button is on desktop now too, in the same style — the box shortens from the right and the button sits beside it — as a perfect circle the same height as the pill input, matching its round ends. The two-box input already steps aside whenever barcode mode is on (mobile and desktop alike), so the single box is what you get in barcode mode, and it comes back when barcode mode goes off.
+- Fixed: on desktop the camera request asked for a rear camera first, which most webcams can't match — it now retries with any camera instead of failing.
+- Service worker cache bumped to pantser-v28.
+
 ## [2026-11-12] [v1.14.1]
 - Changed: the Advanced settings "Barcode scan button (experimental)" toggle is gone — the scan button is always there in barcode mode on mobile now, no switch needed. And it's a rounded square instead of a circle, matching the text box (same corner radius, same height as the box).
 - Service worker cache bumped to pantser-v27.

@@ -301,12 +301,16 @@ settings). The web keeps the same grouping.
   the chips and Settings switch use, so all three stay in sync; the
   two-box flag is untouched, so switching barcode mode off restores
   the two-box input if it was on. Since web v1.14.0 a barcode scanner
-  is available: in barcode mode on mobile it shows a scan button to
-  the right of the box, the box shrinking from the right so the pair
-  sits centered; desktop hides the button. (v1.14.0 gated it behind
-  an experimental Advanced switch; v1.14.1 dropped the switch — the
-  button is always there in barcode mode — and made it a rounded
-  square matching the text box instead of a circle.)
+  is available: in barcode mode it shows a scan button to the right
+  of the box, the box shrinking from the right so the pair sits
+  centered — a rounded square matching the text box on mobile, a
+  perfect circle the same height as the pill input on desktop
+  (v1.14.2; before that the button was mobile-only). (v1.14.0 gated
+  it behind an experimental Advanced
+  switch; v1.14.1 dropped the switch — the button is always there in
+  barcode mode.) The camera request asks for the rear camera first
+  and retries with any camera when no rear camera matches (desktop
+  webcams), instead of failing.
   Tapping it opens a fullscreen live camera preview with corner
   guides, asks for the camera immediately in the tap (no library
   load waits in between, so the phone actually prompts — the

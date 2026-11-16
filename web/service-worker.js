@@ -14,8 +14,11 @@
    box (mobile, experimental toggle in Advanced settings) opens a live
    camera preview and reads 1D barcodes with the vendored ZXing reader.
    v1.14.1 drops the toggle (the button is always there in barcode
-   mode) and makes it a rounded square matching the text box. */
-const CACHE = 'pantser-v27';
+   mode) and makes it a rounded square matching the text box.
+   v1.14.2 brings the scan button to desktop too (as a perfect circle
+   the same height as the pill input) and retries with any camera when
+   no rear camera matches. */
+const CACHE = 'pantser-v28';
 const ASSETS = [
   './',
   './index.html',
