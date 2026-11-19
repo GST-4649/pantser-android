@@ -2,6 +2,10 @@
 
 Every publishing ships with its own dated, versioned entry.
 
+## [2026-11-19] [v1.15.0]
+- Added: item labels ask "How many Boxes?" before printing — a number box with a live "8 boxes -> 2 label papers" line underneath (one sheet holds 4 box labels), and a Cancel button if you change your mind. The popup sits at the top of the screen so the phone keyboard can't hide it, and it remembers the last count you used. A new "Ask how many boxes" toggle under Item labels in Settings turns the question off (on by default); with it off, item labels print one sheet like before.
+- Service worker cache bumped to pantser-v29.
+
 ## [2026-11-15] [v1.14.2]
 - Changed: the barcode scan button is on desktop now too, in the same style — the box shortens from the right and the button sits beside it — as a perfect circle the same height as the pill input, matching its round ends. The two-box input already steps aside whenever barcode mode is on (mobile and desktop alike), so the single box is what you get in barcode mode, and it comes back when barcode mode goes off.
 - Fixed: on desktop the camera request asked for a rear camera first, which most webcams can't match — it now retries with any camera instead of failing.

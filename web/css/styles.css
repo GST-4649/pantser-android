@@ -240,6 +240,14 @@ button.primary:active { opacity: .85; }
   font-weight: 700; cursor: pointer; background: var(--surf); color: var(--text);
 }
 #dlg-btns button.go { background: var(--acc); color: #fff; }
+#dlg-btns button:disabled { opacity: .4; cursor: default; }
+
+/* v1.15.0: "How many Boxes?" popup. margin-bottom auto pins the dialog
+   to the top of the backdrop (overriding align-items center), so the
+   phone keyboard opening below can't hide it. */
+#dlg.dlg-top { margin-bottom: auto; }
+.box-count-input { text-align: center; font-size: 1.25rem; }
+.box-count-line { text-align: center; font-size: 0.9375rem; margin-top: 0.625rem; color: var(--text); }
 
 /* v1.13.1: Share app QR popup (same shape as JeansMixing). */
 #dlg.share-qr { max-width: 34rem; text-align: center; }

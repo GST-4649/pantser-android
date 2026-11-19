@@ -3,7 +3,7 @@
    Default theme only (Linear Modern + Ember Night). Other styles and
    palettes are reserved slots. No em dashes in this file. */
 
-const APP_VERSION = '1.14.2';
+const APP_VERSION = '1.15.0'; /* v1.15.0: "How many Boxes?" popup for item labels (setting-gated, on by default) */
 
 /* ---------------- i18n ---------------- */
 function langCode() {
@@ -1284,7 +1284,11 @@ function wrapValueWords(words, font, size, maxW) {
   return lines;
 }
 
-async function generateItemPdf(item, description, qty) {
+/* v1.15.0: pages repeats the 2x2 sheet (one page per 4 boxes). The
+   cached bytes stay one page; the print path regenerates with the
+   count when it needs more. */
+async function generateItemPdf(item, description, qty, pages) {
+  pages = pages || 1;
   const assets = await loadItemAssets();
   const { PDFDocument, rgb, pushGraphicsState, popGraphicsState, concatTransformationMatrix } = PDFLib;
   const doc = await PDFDocument.create();
@@ -1297,13 +1301,12 @@ async function generateItemPdf(item, description, qty) {
     if (typeof doc.registerFontkit === 'function') doc.registerFontkit(fontkit);
     else if (typeof PDFDocument.registerFontkit === 'function') PDFDocument.registerFontkit(fontkit);
   }
-  const page = doc.addPage([612, 792]);
   const fontReg = await doc.embedFont(assets.reg);
   const fontBold = await doc.embedFont(assets.bold);
   const logo = await doc.embedJpg(assets.logo);
   const black = rgb(0, 0, 0);
 
-  function drawLabel() {
+  function drawLabel(page) {
     page.drawImage(logo, { x: ITEM_PAD, y: ITEM_LABEL_H - ITEM_PAD - ITEM_LOGO_H + ITEM_LOGO_SHIFT, width: ITEM_LOGO_W, height: ITEM_LOGO_H });
     let yTop = ITEM_LABEL_H - ITEM_PAD - ITEM_LOGO_H - 12 + ITEM_LOGO_SHIFT;
     const rows = [
@@ -1330,19 +1333,22 @@ async function generateItemPdf(item, description, qty) {
   /* Cell bottom-left corners (PDF origin is bottom-left). The
      transform is the test generator's: translate to the cell's
      top-right corner, then rotate 90 deg CCW. */
-  const topY = 792 - ITEM_MARGIN_TOP - ITEM_CELL_H;
-  const cells = [
-    [ITEM_MARGIN_X, topY],
-    [ITEM_MARGIN_X + ITEM_CELL_W + ITEM_GUTTER, topY],
-    [ITEM_MARGIN_X, topY - ITEM_CELL_H],
-    [ITEM_MARGIN_X + ITEM_CELL_W + ITEM_GUTTER, topY - ITEM_CELL_H]
-  ];
-  cells.forEach(function (cell) {
-    page.pushOperators(pushGraphicsState(),
-      concatTransformationMatrix(0, 1, -1, 0, cell[0] + ITEM_CELL_W, cell[1]));
-    drawLabel();
-    page.pushOperators(popGraphicsState());
-  });
+  function drawPage(page) {
+    const topY = 792 - ITEM_MARGIN_TOP - ITEM_CELL_H;
+    const cells = [
+      [ITEM_MARGIN_X, topY],
+      [ITEM_MARGIN_X + ITEM_CELL_W + ITEM_GUTTER, topY],
+      [ITEM_MARGIN_X, topY - ITEM_CELL_H],
+      [ITEM_MARGIN_X + ITEM_CELL_W + ITEM_GUTTER, topY - ITEM_CELL_H]
+    ];
+    cells.forEach(function (cell) {
+      page.pushOperators(pushGraphicsState(),
+        concatTransformationMatrix(0, 1, -1, 0, cell[0] + ITEM_CELL_W, cell[1]));
+      drawLabel(page);
+      page.pushOperators(popGraphicsState());
+    });
+  }
+  for (var p = 0; p < pages; p++) drawPage(doc.addPage([612, 792]));
   return await doc.save();
 }
 
@@ -1352,7 +1358,8 @@ async function generateItemPdf(item, description, qty) {
    Each label is laid out readable-first (logo on top, rows below)
    and rotated 90 deg counter-clockwise into its portrait cell, the
    same transform the PDF uses. */
-function buildItemSheetHtml(item, description, qty) {
+function buildItemSheetHtml(item, description, qty, pages) {
+  pages = pages || 1;
   const rows = [
     { label: 'ITEM #:', value: item, size: 20 },
     { label: 'DESCRIPTION:', value: description, size: 18 },
@@ -1372,7 +1379,15 @@ function buildItemSheetHtml(item, description, qty) {
   const cellHtml = cells.map(function (cell) {
     return '<div style="position:absolute;left:' + cell[0] + 'pt;top:' + cell[1] + 'pt;width:252pt;height:360pt;">' + label + '</div>';
   }).join('');
-  return '<div style="position:relative;width:612pt;height:792pt;overflow:hidden;background:#fff;color:#000;">' + cellHtml + '</div>';
+  /* v1.15.0: repeat the sheet for multi-page prints. Each sheet is
+     exactly one Letter page tall, and every sheet but the last carries
+     an explicit page break so rounding can't spill a sheet. */
+  const sheet = '<div style="position:relative;width:612pt;height:792pt;overflow:hidden;background:#fff;color:#000;">' + cellHtml + '</div>';
+  if (pages <= 1) return sheet;
+  const sheetBrk = '<div style="position:relative;width:612pt;height:792pt;overflow:hidden;background:#fff;color:#000;page-break-after:always;">' + cellHtml + '</div>';
+  let out = '';
+  for (let i = 0; i < pages; i++) out += (i < pages - 1) ? sheetBrk : sheet;
+  return out;
 }
 
 /* Item history lives apart from the size-label tray: its own store
@@ -1385,11 +1400,16 @@ function itemKey(item, desc, qty) {
   return item + '|' + desc + '|' + qty;
 }
 
-async function printItemRecord(rec, bytes) {
+/* v1.15.0: pages is the sheet count (1 = today). The cached bytes are
+   always one page, so a multi-page print regenerates them here; the
+   HTML path just repeats the sheet. */
+async function printItemRecord(rec, bytes, pages) {
+  pages = pages || 1;
   rec.prints = (rec.prints || 0) + 1;
   rec.lastPrinted = Date.now();
   Store.set('item_records', itemRecords());
   renderAll();
+  if (pages > 1) bytes = await generateItemPdf(rec.item, rec.desc, rec.qty, pages);
   if (useHtmlPrint()) {
     try {
       /* Best effort: let the Tinos faces and the cached logo land
@@ -1407,16 +1427,67 @@ async function printItemRecord(rec, bytes) {
         }),
         new Promise(function (res) { setTimeout(res, 2000); })
       ]);
-      printHtml(buildItemSheetHtml(rec.item, rec.desc, rec.qty));
+      printHtml(buildItemSheetHtml(rec.item, rec.desc, rec.qty, pages));
       return;
     } catch (e) { /* fall through to the PDF flow, never worse than today */ }
   }
   await printPdfBytes(bytes);
 }
 
+/* v1.15.0: "How many Boxes?" popup for item labels. One sheet holds 4
+   box labels, so papers = ceil(boxes / 4). The popup sits at the top
+   of the screen (dlg-top) so the phone keyboard can't hide it, the
+   counter updates live as he types, Print stays greyed out until
+   there's a real number, and Cancel is right there if he changes his
+   mind. The input starts at the last count he used (4 the first
+   time). */
+function pagesForBoxes(n) { return Math.ceil(n / 4); }
+function boxCountOn() { return Store.flag('ask_boxes', true); }
+function askBoxCount(onPrint) {
+  let boxes = Store.get('last_box_count', 4);
+  const html = '<input type="text" inputmode="numeric" id="boxCountInput" class="box-count-input" value="' + boxes + '">' +
+    '<div class="box-count-line" id="boxCountLine"></div>';
+  showDialog({
+    title: t('box_count_title'),
+    html: html,
+    dialogClass: 'dlg-top',
+    buttons: [
+      { label: t('btn_cancel') },
+      { label: t('items_print'), primary: true, onClick: function () { Store.set('last_box_count', boxes); onPrint(pagesForBoxes(boxes)); } }
+    ]
+  });
+  const input = document.getElementById('boxCountInput');
+  const line = document.getElementById('boxCountLine');
+  const printBtn = document.querySelector('#dlg-btns button.go');
+  function refresh() {
+    const n = parseInt(input.value, 10);
+    if (!isNaN(n) && n >= 1) {
+      boxes = n;
+      const m = pagesForBoxes(n);
+      line.textContent = t('box_count_line', n, n === 1 ? t('unit_box_one') : t('unit_box_many'), m, m === 1 ? t('unit_paper_one') : t('unit_paper_many'));
+      if (printBtn) printBtn.disabled = false;
+    } else {
+      line.textContent = t('box_count_hint');
+      if (printBtn) printBtn.disabled = true;
+    }
+  }
+  input.addEventListener('input', refresh);
+  refresh();
+  input.focus();
+  input.select();
+}
+
 async function createItemLabel(item, desc, qty) {
   item = (item || '').trim(); desc = (desc || '').trim(); qty = (qty || '').trim();
   if (!item || !desc || !qty) { toast(t('err_empty_item')); return; }
+  if (boxCountOn()) {
+    askBoxCount(function (pages) { createAndPrintItem(item, desc, qty, pages); });
+    return;
+  }
+  await createAndPrintItem(item, desc, qty, 1);
+}
+
+async function createAndPrintItem(item, desc, qty, pages) {
   try {
     const key = itemKey(item, desc, qty);
     const recs = itemRecords();
@@ -1429,7 +1500,7 @@ async function createItemLabel(item, desc, qty) {
       await IDB.put(rec.id, bytes);
       Store.set('item_records', recs);
     }
-    await printItemRecord(rec, bytes);
+    await printItemRecord(rec, bytes, pages);
   } catch (e) {
     toast(t('err_create_fail', (e && e.message) || e));
   }
@@ -1497,7 +1568,13 @@ function renderItems() {
       try {
         let bytes = await IDB.get(r.id);
         if (!bytes || !bytes.length) bytes = await generateItemPdf(r.item, r.desc, r.qty);
-        await printItemRecord(r, bytes);
+        if (boxCountOn()) {
+          askBoxCount(function (pages) {
+            printItemRecord(r, bytes, pages).catch(function (err) { toast(t('err_create_fail', (err && err.message) || err)); });
+          });
+          return;
+        }
+        await printItemRecord(r, bytes, 1);
       } catch (err) { toast(t('err_create_fail', (err && err.message) || err)); }
     });
     const del = document.createElement('button');
@@ -1798,6 +1875,11 @@ function renderSettings() {
   u.appendChild(switchRow(t('setting_item_labels'), t('setting_item_labels_sub'),
     itemLabelsOn(),
     function (on) { Store.setFlag('item_labels', on); renderAll(); }));
+  /* v1.15.0: "How many Boxes?" popup before item-label prints. On by
+     default (flag absent means on), so it just works for everyone. */
+  u.appendChild(switchRow(t('setting_box_count'), t('setting_box_count_sub'),
+    boxCountOn(),
+    function (on) { Store.setFlag('ask_boxes', on); renderAll(); }));
   const layout = Store.get('layout', '4x15');
   u.appendChild(setRow(t('setting_layout'), null, layout.replace('x', ' x '), function () {
     pickDialog(t('setting_layout'), LAYOUTS.map(function (l) {
