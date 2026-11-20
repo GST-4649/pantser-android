@@ -3,7 +3,7 @@
    Default theme only (Linear Modern + Ember Night). Other styles and
    palettes are reserved slots. No em dashes in this file. */
 
-const APP_VERSION = '1.15.0'; /* v1.15.0: "How many Boxes?" popup for item labels (setting-gated, on by default) */
+const APP_VERSION = '1.15.1'; /* v1.15.1: desktop box-count popup is big and centered */
 
 /* ---------------- i18n ---------------- */
 function langCode() {

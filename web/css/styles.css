@@ -249,6 +249,20 @@ button.primary:active { opacity: .85; }
 .box-count-input { text-align: center; font-size: 1.25rem; }
 .box-count-line { text-align: center; font-size: 0.9375rem; margin-top: 0.625rem; color: var(--text); }
 
+/* v1.15.1: on desktop the box-count popup is big and centered instead
+   of top-pinned — no on-screen keyboard to dodge there. The
+   margin-bottom reset hands vertical centering back to the backdrop's
+   align-items: center. Phones (including landscape) keep the compact
+   top-pinned popup. */
+@media (min-width: 900px) {
+  #dlg.dlg-top { margin-bottom: 0; max-width: 32rem; padding: 2rem; }
+  #dlg.dlg-top #dlg-title { font-size: 1.375rem; margin-bottom: 0.75rem; }
+  #dlg.dlg-top .box-count-input { font-size: 1.5rem; padding: 1rem; }
+  #dlg.dlg-top .box-count-line { font-size: 1.125rem; margin-top: 0.875rem; }
+  #dlg.dlg-top #dlg-btns { margin-top: 1.25rem; }
+  #dlg.dlg-top #dlg-btns button { font-size: 1.0625rem; padding: 0.875rem 1.5rem; }
+}
+
 /* v1.13.1: Share app QR popup (same shape as JeansMixing). */
 #dlg.share-qr { max-width: 34rem; text-align: center; }
 #dlg.share-qr .qr-wrap img { width: 100%; max-width: 26rem; height: auto; image-rendering: pixelated; }

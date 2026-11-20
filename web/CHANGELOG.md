@@ -2,6 +2,10 @@
 
 Every publishing ships with its own dated, versioned entry.
 
+## [2026-11-19] [v1.15.1]
+- Changed: on desktop the "How many Boxes?" popup is big and centered now — wider dialog, larger title, input, counter line and buttons — instead of the small top-pinned one. Phones keep the compact top-pinned popup, since that's the one the keyboard can't hide.
+- Service worker cache bumped to pantser-v30.
+
 ## [2026-11-19] [v1.15.0]
 - Added: item labels ask "How many Boxes?" before printing — a number box with a live "8 boxes -> 2 label papers" line underneath (one sheet holds 4 box labels), and a Cancel button if you change your mind. The popup sits at the top of the screen so the phone keyboard can't hide it, and it remembers the last count you used. A new "Ask how many boxes" toggle under Item labels in Settings turns the question off (on by default); with it off, item labels print one sheet like before.
 - Service worker cache bumped to pantser-v29.
