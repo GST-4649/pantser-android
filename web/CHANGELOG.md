@@ -2,6 +2,10 @@
 
 Every publishing ships with its own dated, versioned entry.
 
+## [2026-11-25] [v1.15.2]
+- Changed: the two-box size input (two boxes with an x, like 32 x 30) is the default everywhere now, phones included — before, a fresh install only got it on wide screens and phones started on the classic single box. Anyone who already flipped the switch keeps their own choice.
+- Service worker cache bumped to pantser-v31.
+
 ## [2026-11-19] [v1.15.1]
 - Changed: on desktop the "How many Boxes?" popup is big and centered now — wider dialog, larger title, input, counter line and buttons — instead of the small top-pinned one. Phones keep the compact top-pinned popup, since that's the one the keyboard can't hide.
 - Service worker cache bumped to pantser-v30.

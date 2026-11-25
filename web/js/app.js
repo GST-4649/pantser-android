@@ -3,7 +3,7 @@
    Default theme only (Linear Modern + Ember Night). Other styles and
    palettes are reserved slots. No em dashes in this file. */
 
-const APP_VERSION = '1.15.1'; /* v1.15.1: desktop box-count popup is big and centered */
+const APP_VERSION = '1.15.2'; /* v1.15.2: two-box input is the default everywhere */
 
 /* ---------------- i18n ---------------- */
 function langCode() {
@@ -836,15 +836,13 @@ function syncClassicFromTb() {
    two-box setting, it follows the layout: on for wide screens, off for
    phones. The moment they flip it anywhere, that choice is stored and
    wins everywhere. */
-const WIDE_MQ = '(min-width: 900px), (orientation: landscape) and (min-width: 600px) and (max-height: 500px)';
-function wideLayout() {
-  return !!(window.matchMedia && window.matchMedia(WIDE_MQ).matches);
-}
+/* v1.15.2: two-box is the default everywhere (not just on wide
+   screens). A stored 'true'/'false' still wins over the default. */
 function twoBoxOn() {
   const v = Store.get('two_box', '');
   if (v === 'true') return true;
   if (v === 'false') return false;
-  return wideLayout();
+  return true;
 }
 function barcodeOn() {
   return Store.flag('barcode', false);
@@ -2101,10 +2099,6 @@ async function init() {
   if (window.matchMedia) {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
       if (Store.get('mode', 'system') === 'system') applyTheme();
-    });
-    const wideMq = window.matchMedia(WIDE_MQ);
-    if (wideMq.addEventListener) wideMq.addEventListener('change', function () {
-      if (Store.get('two_box', '') === '') renderAll();
     });
   }
   applyScale();

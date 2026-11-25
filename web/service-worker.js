@@ -18,7 +18,7 @@
    v1.14.2 brings the scan button to desktop too (as a perfect circle
    the same height as the pill input) and retries with any camera when
    no rear camera matches. */
-const CACHE = 'pantser-v30';
+const CACHE = 'pantser-v31';
 const ASSETS = [
   './',
   './index.html',
